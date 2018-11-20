@@ -1,14 +1,20 @@
 
 
-{% macro post_hook_mark_dest_dates_complete(tableName, completed_dates) %}
-  {% if not completed_dates %}
-    {{ return([]) }}
+{% macro post_hook_mark_dest_dates_complete(tableName) %}
+  {% set missing_dest_dates =
+    dest_dates_missing(tableName,
+                       start_date=var('source_start_date', none),
+                       end_date=var('source_end_date', none)) %}
+
+  {% if not missing_dest_dates %}
+    {{ log("** debug: nothing to do. Skipping", info=True) }}
+    {{ return("select 0 as no_op") }}
   {% endif %}
 
-  -- depends_on: ref('DestinationTableProcessedPartitions')
+  {{ log("** debug: inserting partitions: " ~ missing_dest_dates, info=True) }}
   INSERT INTO {{ ref("DestinationTableProcessedPartitions") }} (tableName,  completedPartition)
   VALUES
-    {% for cur_date in completed_dates %}
+    {% for cur_date in missing_dest_dates %}
       ("{{ tableName }}", DATE("{{ cur_date }}"))
       {%- if not loop.last %},{% endif %}
     {% endfor %}
@@ -30,7 +36,7 @@
     emailSentPartitions AS (
       SELECT DISTINCT
         _PARTITIONDATE AS partitionDate
-      FROM `some-source-project`.DailyUpdates.SomeSourceTable
+      FROM {{ var('source_table_to_experiment_with') }}
     ),
     destPartitions AS (
       SELECT DISTINCT

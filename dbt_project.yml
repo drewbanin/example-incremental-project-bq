@@ -20,3 +20,6 @@ models:
         # the DailyUpdate tables.
         source_start_date: ""
         source_end_date: ""
+
+        #source_table_to_experiment_with: "`some-source-project`.DailyUpdates.SomeSourceTable"
+        source_table_to_experiment_with: "`dbt-dev-168022`.dbt_dbanin.debug111"
