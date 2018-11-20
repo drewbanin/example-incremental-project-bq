@@ -1,0 +1,22 @@
+
+name: 'test_project'
+version: '1.0'
+
+profile: 'bq'
+
+source-paths: ["models"]
+macro-paths: ["macros"]
+
+target-path: "target"  # directory which will store compiled SQL files
+clean-targets:         # directories to be removed by `dbt clean`
+    - "target"
+    - "dbt_modules"
+
+models:
+  test_project:
+      materialized: table
+      vars:
+        # These vars can be overridden on the command-line in order to ingest particular slices of
+        # the DailyUpdate tables.
+        source_start_date: ""
+        source_end_date: ""
